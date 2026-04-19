@@ -15,6 +15,8 @@ Optional environment variables:
   RESULT_BUCKET                    Destination S3 bucket for task results
   RESULT_PREFIX                    Destination S3 key prefix for task results (default: results)
   RESULT_LOCAL_PATH                Local output artifact to upload after run (optional)
+  GH_PAT_SECRET_ID                 Optional Secrets Manager secret id containing GitHub PAT
+  GH_HOST                          Optional GitHub host for gh auth (default: github.com)
   MAX_TASK_DURATION_SECONDS        Runtime cap in seconds (default: 3600, max expected on ECS scheduler)
 USAGE
 }
@@ -30,6 +32,11 @@ shift 2
 
 if [[ ! "$CONFIG_SELECTOR" =~ ^[A-Za-z0-9._-]+$ ]]; then
   echo "Invalid config selector '$CONFIG_SELECTOR'. Allowed: letters, numbers, dot, underscore, dash." >&2
+  exit 1
+fi
+
+if [[ "$CONFIG_SELECTOR" == *".."* ]]; then
+  echo "Invalid config selector '$CONFIG_SELECTOR'. Relative path patterns are not allowed." >&2
   exit 1
 fi
 
@@ -88,6 +95,26 @@ PY
 
 export OPENCODE_CONFIG_FILE="$RUNTIME_CONFIG_PATH"
 export OPENCODE_UNATTENDED_PROMPT="$PROMPT_VALUE"
+
+if [[ -n "${GH_PAT_SECRET_ID:-}" ]]; then
+  GH_HOST="${GH_HOST:-github.com}"
+  echo "Configuring gh CLI authentication from secret ${GH_PAT_SECRET_ID} for host ${GH_HOST}"
+  GH_SECRET_JSON="$(aws secretsmanager get-secret-value --secret-id "${GH_PAT_SECRET_ID}" --output json)"
+  GH_SECRET_STRING="$(printf '%s' "${GH_SECRET_JSON}" | jq -r '.SecretString // empty')"
+  if [[ -z "${GH_SECRET_STRING}" ]]; then
+    GH_SECRET_STRING="$(printf '%s' "${GH_SECRET_JSON}" | jq -r '.SecretBinary // empty' | base64 -d)"
+  fi
+
+  GH_PAT="$(printf '%s' "${GH_SECRET_STRING}" | jq -r 'try (fromjson | .token // .pat // .github_pat // .GITHUB_TOKEN // .gh_token) catch .')"
+  if [[ -z "${GH_PAT}" || "${GH_PAT}" == "null" ]]; then
+    echo "Unable to resolve GitHub PAT from secret ${GH_PAT_SECRET_ID}" >&2
+    exit 1
+  fi
+
+  export GITHUB_TOKEN="${GH_PAT}"
+  export GH_TOKEN="${GH_PAT}"
+  printf '%s' "${GH_PAT}" | gh auth login --hostname "${GH_HOST}" --with-token >/dev/null
+fi
 
 if [[ -n "${RESULT_BUCKET:-}" ]]; then
   export OPENCODE_RESULTS_S3_URI="s3://${RESULT_BUCKET}/${RESULT_PREFIX:-results}/${CONFIG_SELECTOR}/"

@@ -72,12 +72,15 @@ data "aws_iam_policy_document" "ecs_task" {
     ]
   }
 
-  statement {
-    sid = "KmsDecryptForParametersAndSecrets"
+  dynamic "statement" {
+    for_each = length(var.kms_key_arns) > 0 ? [1] : []
+    content {
+      sid = "KmsDecryptForParametersAndSecrets"
 
-    actions = ["kms:Decrypt"]
+      actions = ["kms:Decrypt"]
 
-    resources = ["*"]
+      resources = var.kms_key_arns
+    }
   }
 }
 

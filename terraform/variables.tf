@@ -78,10 +78,22 @@ variable "result_prefix" {
   default     = "results"
 }
 
+variable "gh_pat_secret_id" {
+  description = "Optional Secrets Manager secret ID containing GitHub PAT used by gh CLI"
+  type        = string
+  default     = ""
+}
+
 variable "prompt_parameter_name" {
   description = "Default SSM parameter containing unattended prompt text"
   type        = string
   default     = "/opencode/prompts/default"
+}
+
+variable "max_task_duration_limit_seconds" {
+  description = "Upper runtime limit for scheduled ECS tasks"
+  type        = number
+  default     = 3600
 }
 
 variable "max_task_duration_seconds" {
@@ -90,8 +102,8 @@ variable "max_task_duration_seconds" {
   default     = 3600
 
   validation {
-    condition     = var.max_task_duration_seconds > 0 && var.max_task_duration_seconds <= 3600
-    error_message = "max_task_duration_seconds must be between 1 and 3600 seconds."
+    condition     = var.max_task_duration_seconds > 0 && var.max_task_duration_seconds <= var.max_task_duration_limit_seconds
+    error_message = "max_task_duration_seconds must be between 1 second and max_task_duration_limit_seconds."
   }
 }
 
@@ -111,6 +123,12 @@ variable "schedule_arguments" {
   description = "Example daily arguments passed to the container entrypoint"
   type        = list(string)
   default     = ["gemini", "/opencode/prompts/gemini", "opencode"]
+}
+
+variable "kms_key_arns" {
+  description = "Optional KMS keys allowed for decrypting SSM parameters and secrets"
+  type        = list(string)
+  default     = []
 }
 
 variable "tags" {

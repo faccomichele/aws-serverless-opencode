@@ -25,6 +25,9 @@ The script exports:
 - `OPENCODE_CONFIG_FILE` (resolved local config path)
 - `OPENCODE_UNATTENDED_PROMPT` (prompt loaded from SSM)
 - `OPENCODE_RESULTS_S3_URI` (when `RESULT_BUCKET` is set)
+- `GH_TOKEN` / `GITHUB_TOKEN` (when `GH_PAT_SECRET_ID` is set; token is loaded from Secrets Manager and `gh auth login` is run automatically)
+
+The image includes both AWS CLI and GitHub CLI (`gh`) for unattended ECS runs.
 
 `MAX_TASK_DURATION_SECONDS` defaults to `3600` so the task cannot run longer than one hour.
 
@@ -48,3 +51,4 @@ terraform apply
 ```
 
 The task role includes read access to configuration/prompt data and write access to a separate result bucket prefix.
+Set `gh_pat_secret_id` in Terraform variables if you want the container to auto-configure global `gh` authentication from AWS Secrets Manager.

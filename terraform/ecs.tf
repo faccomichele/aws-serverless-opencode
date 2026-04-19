@@ -66,6 +66,10 @@ resource "aws_ecs_task_definition" "opencode" {
         {
           name  = "MAX_TASK_DURATION_SECONDS"
           value = tostring(var.max_task_duration_seconds)
+        },
+        {
+          name  = "GH_PAT_SECRET_ID"
+          value = var.gh_pat_secret_id
         }
       ]
       logConfiguration = {

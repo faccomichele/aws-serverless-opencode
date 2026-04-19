@@ -8,6 +8,7 @@ config_bucket = "my-opencode-config-bucket"
 config_prefix = "configs"
 result_bucket = "my-opencode-results-bucket"
 result_prefix = "results"
+gh_pat_secret_id = "my/opencode/github-pat"
 
 schedule_expression = "rate(1 day)"
 schedule_arguments  = ["gemini", "/opencode/prompts/gemini", "opencode"]
