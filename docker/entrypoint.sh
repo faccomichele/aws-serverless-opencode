@@ -40,7 +40,7 @@ if [[ "$CONFIG_SELECTOR" == *".."* ]]; then
   exit 1
 fi
 
-if [[ "$CONFIG_SELECTOR" == *"/"* || "$CONFIG_SELECTOR" == *"\\"* || "$CONFIG_SELECTOR" == /* ]]; then
+if [[ "$CONFIG_SELECTOR" == *"/"* || "$CONFIG_SELECTOR" == *"\\"* ]]; then
   echo "Invalid config selector '$CONFIG_SELECTOR'. Path separators are not allowed." >&2
   exit 1
 fi
@@ -110,7 +110,11 @@ if [[ -n "${GH_PAT_SECRET_ID:-}" ]]; then
     GH_SECRET_STRING="$(printf '%s' "${GH_SECRET_JSON}" | jq -r '.SecretBinary // empty' | base64 -d)"
   fi
 
-  GH_PAT="$(printf '%s' "${GH_SECRET_STRING}" | jq -r 'try (fromjson | .token // .pat // .github_pat // .GITHUB_TOKEN // .gh_token) catch .')"
+  if printf '%s' "${GH_SECRET_STRING}" | jq -e . >/dev/null 2>&1; then
+    GH_PAT="$(printf '%s' "${GH_SECRET_STRING}" | jq -r '.token // .pat // .github_pat // .GITHUB_TOKEN // .gh_token // empty')"
+  else
+    GH_PAT="${GH_SECRET_STRING}"
+  fi
   if [[ -z "${GH_PAT}" || "${GH_PAT}" == "null" ]]; then
     echo "Unable to resolve GitHub PAT from secret ${GH_PAT_SECRET_ID}. Expected a plain token string or JSON containing one of: token, pat, github_pat, GITHUB_TOKEN, gh_token." >&2
     exit 1

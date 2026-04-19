@@ -102,20 +102,14 @@ variable "prompt_parameter_name" {
   default     = "/opencode/prompts/default"
 }
 
-variable "max_task_duration_limit_seconds" {
-  description = "Upper runtime limit for scheduled ECS tasks"
-  type        = number
-  default     = 3600
-}
-
 variable "max_task_duration_seconds" {
   description = "Maximum task execution duration enforced by container entrypoint"
   type        = number
   default     = 3600
 
   validation {
-    condition     = var.max_task_duration_seconds > 0 && var.max_task_duration_seconds <= var.max_task_duration_limit_seconds
-    error_message = "max_task_duration_seconds must be between 1 second and max_task_duration_limit_seconds."
+    condition     = var.max_task_duration_seconds > 0 && var.max_task_duration_seconds <= 3600
+    error_message = "max_task_duration_seconds must be between 1 and 3600 seconds."
   }
 }
 

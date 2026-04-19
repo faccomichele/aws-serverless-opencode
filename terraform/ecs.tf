@@ -76,7 +76,7 @@ resource "aws_ecs_task_definition" "opencode" {
         logDriver = "awslogs"
         options = {
           awslogs-group         = aws_cloudwatch_log_group.opencode.name
-          awslogs-region        = var.aws_region
+          awslogs-region        = data.aws_region.current.name
           awslogs-stream-prefix = "ecs"
         }
       }

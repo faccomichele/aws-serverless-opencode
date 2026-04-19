@@ -10,6 +10,8 @@ Build the custom ARM64 image for ECR from repository root:
 docker build -f docker/Dockerfile -t opencode-fargate:latest .
 ```
 
+You can pin the upstream opencode source ref with `--build-arg OPENCODE_REF=<tag-or-branch>`.
+
 The image entrypoint (`docker/entrypoint.sh`) expects:
 
 1. `config_selector` argument (for example `gemini`, `claude`, `copilot`), used to fetch `s3://$CONFIG_BUCKET/$CONFIG_PREFIX/<selector>.json`
