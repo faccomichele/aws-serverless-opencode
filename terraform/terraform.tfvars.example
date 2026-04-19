@@ -1,0 +1,18 @@
+aws_region      = "us-east-1"
+name_prefix     = "opencode-job"
+vpc_id          = "vpc-0123456789abcdef0"
+subnet_ids      = ["subnet-0123456789abcdef0", "subnet-abcdef0123456789a"]
+assign_public_ip = true
+
+config_bucket = "my-opencode-config-bucket"
+config_prefix = "configs"
+result_bucket = "my-opencode-results-bucket"
+result_prefix = "results"
+
+schedule_expression = "rate(1 day)"
+schedule_arguments  = ["gemini", "/opencode/prompts/gemini", "opencode"]
+
+tags = {
+  Environment = "dev"
+  Owner       = "platform-team"
+}
