@@ -112,7 +112,7 @@ resource "aws_iam_role" "scheduler" {
 data "aws_iam_policy_document" "scheduler" {
   statement {
     actions   = ["ecs:RunTask"]
-    resources = [aws_ecs_task_definition.opencode.arn]
+    resources = ["arn:aws:ecs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:task-definition/${aws_ecs_task_definition.opencode.family}:*"]
   }
 
   statement {

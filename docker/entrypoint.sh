@@ -15,7 +15,7 @@ Optional environment variables:
   RESULT_BUCKET                    Destination S3 bucket for task results
   RESULT_PREFIX                    Destination S3 key prefix for task results (default: results)
   RESULT_LOCAL_PATH                Local output artifact to upload after run (optional)
-  GH_PAT_SECRET_ID                 Optional Secrets Manager secret id containing GitHub PAT
+  GH_PAT_SECRET_ID                 Optional Secrets Manager secret id containing GitHub PAT (plain string or JSON key: token|pat|github_pat|GITHUB_TOKEN|gh_token)
   GH_HOST                          Optional GitHub host for gh auth (default: github.com)
   MAX_TASK_DURATION_SECONDS        Runtime cap in seconds (default: 3600, max expected on ECS scheduler)
 USAGE
@@ -42,6 +42,11 @@ fi
 
 if [[ "$CONFIG_SELECTOR" == *"/"* || "$CONFIG_SELECTOR" == *"\\"* ]]; then
   echo "Invalid config selector '$CONFIG_SELECTOR'. Path separators are not allowed." >&2
+  exit 1
+fi
+
+if [[ "$CONFIG_SELECTOR" == .* || "$CONFIG_SELECTOR" == *. ]]; then
+  echo "Invalid config selector '$CONFIG_SELECTOR'. Leading or trailing dots are not allowed." >&2
   exit 1
 fi
 
@@ -111,11 +116,11 @@ if [[ -n "${GH_PAT_SECRET_ID:-}" ]]; then
   fi
 
   if printf '%s' "${GH_SECRET_STRING}" | jq -e . >/dev/null 2>&1; then
-    GH_PAT="$(printf '%s' "${GH_SECRET_STRING}" | jq -r '.token // .pat // .github_pat // .GITHUB_TOKEN // .gh_token // empty')"
+    GH_PAT="$(printf '%s' "${GH_SECRET_STRING}" | jq -r '.token // .pat // .github_pat // .GITHUB_TOKEN // .gh_token | select(. != null)')"
   else
     GH_PAT="${GH_SECRET_STRING}"
   fi
-  if [[ -z "${GH_PAT}" || "${GH_PAT}" == "null" ]]; then
+  if [[ -z "${GH_PAT}" ]]; then
     echo "Unable to resolve GitHub PAT from secret ${GH_PAT_SECRET_ID}. Expected a plain token string or JSON containing one of: token, pat, github_pat, GITHUB_TOKEN, gh_token." >&2
     exit 1
   fi

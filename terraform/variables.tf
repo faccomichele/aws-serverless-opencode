@@ -140,7 +140,7 @@ variable "schedule_max_retry_attempts" {
 variable "schedule_arguments" {
   description = "Example daily arguments passed to the container entrypoint"
   type        = list(string)
-  default     = ["gemini", "/opencode/prompts/gemini", "opencode"]
+  default     = ["gemini", "/opencode/prompts/default", "opencode"]
 }
 
 variable "kms_key_arns" {
