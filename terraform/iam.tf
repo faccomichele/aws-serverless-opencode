@@ -55,9 +55,7 @@ data "aws_iam_policy_document" "ecs_task" {
       "ssm:GetParameter"
     ]
 
-    resources = [
-      "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/*"
-    ]
+    resources = local.ssm_parameter_arns
   }
 
   statement {
@@ -67,9 +65,7 @@ data "aws_iam_policy_document" "ecs_task" {
       "secretsmanager:GetSecretValue"
     ]
 
-    resources = [
-      "arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:*"
-    ]
+    resources = local.secret_arns
   }
 
   dynamic "statement" {

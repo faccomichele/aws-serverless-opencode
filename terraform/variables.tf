@@ -84,6 +84,18 @@ variable "gh_pat_secret_id" {
   default     = ""
 }
 
+variable "ssm_parameter_path_prefix" {
+  description = "SSM parameter path prefix allowed for runtime placeholder resolution"
+  type        = string
+  default     = "/opencode/"
+}
+
+variable "secret_name_prefix" {
+  description = "Secrets Manager secret name prefix allowed for runtime placeholder resolution"
+  type        = string
+  default     = "opencode/"
+}
+
 variable "prompt_parameter_name" {
   description = "Default SSM parameter containing unattended prompt text"
   type        = string
@@ -117,6 +129,18 @@ variable "schedule_enabled" {
   description = "Whether the daily schedule is enabled"
   type        = bool
   default     = true
+}
+
+variable "schedule_max_event_age_seconds" {
+  description = "Maximum EventBridge Scheduler event age for retries/dispatch"
+  type        = number
+  default     = 3600
+}
+
+variable "schedule_max_retry_attempts" {
+  description = "Maximum EventBridge Scheduler retries for failed invocations"
+  type        = number
+  default     = 0
 }
 
 variable "schedule_arguments" {

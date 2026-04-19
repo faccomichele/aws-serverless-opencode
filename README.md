@@ -51,4 +51,4 @@ terraform apply
 ```
 
 The task role includes read access to configuration/prompt data and write access to a separate result bucket prefix.
-Set `gh_pat_secret_id` in Terraform variables if you want the container to auto-configure global `gh` authentication from AWS Secrets Manager.
+Use `ssm_parameter_path_prefix` and `secret_name_prefix` to scope runtime placeholder access, and set `gh_pat_secret_id` to auto-configure global `gh` authentication from AWS Secrets Manager.

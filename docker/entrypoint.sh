@@ -40,6 +40,11 @@ if [[ "$CONFIG_SELECTOR" == *".."* ]]; then
   exit 1
 fi
 
+if [[ "$CONFIG_SELECTOR" == *"/"* || "$CONFIG_SELECTOR" == *"\\"* || "$CONFIG_SELECTOR" == /* ]]; then
+  echo "Invalid config selector '$CONFIG_SELECTOR'. Path separators are not allowed." >&2
+  exit 1
+fi
+
 : "${CONFIG_BUCKET:?CONFIG_BUCKET is required}"
 
 CONFIG_PREFIX="${CONFIG_PREFIX:-configs}"
@@ -107,7 +112,7 @@ if [[ -n "${GH_PAT_SECRET_ID:-}" ]]; then
 
   GH_PAT="$(printf '%s' "${GH_SECRET_STRING}" | jq -r 'try (fromjson | .token // .pat // .github_pat // .GITHUB_TOKEN // .gh_token) catch .')"
   if [[ -z "${GH_PAT}" || "${GH_PAT}" == "null" ]]; then
-    echo "Unable to resolve GitHub PAT from secret ${GH_PAT_SECRET_ID}" >&2
+    echo "Unable to resolve GitHub PAT from secret ${GH_PAT_SECRET_ID}. Expected a plain token string or JSON containing one of: token, pat, github_pat, GITHUB_TOKEN, gh_token." >&2
     exit 1
   fi
 

@@ -8,10 +8,14 @@ config_bucket = "my-opencode-config-bucket"
 config_prefix = "configs"
 result_bucket = "my-opencode-results-bucket"
 result_prefix = "results"
-gh_pat_secret_id = "my/opencode/github-pat"
+gh_pat_secret_id = "opencode/github-pat"
+ssm_parameter_path_prefix = "/opencode/"
+secret_name_prefix        = "opencode/"
 
 schedule_expression = "rate(1 day)"
 schedule_arguments  = ["gemini", "/opencode/prompts/gemini", "opencode"]
+schedule_max_event_age_seconds = 3600
+schedule_max_retry_attempts    = 0
 
 tags = {
   Environment = "dev"

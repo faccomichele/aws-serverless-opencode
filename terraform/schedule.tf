@@ -33,8 +33,8 @@ resource "aws_scheduler_schedule" "daily_opencode" {
     }
 
     retry_policy {
-      maximum_event_age_in_seconds = 3600
-      maximum_retry_attempts       = 0
+      maximum_event_age_in_seconds = var.schedule_max_event_age_seconds
+      maximum_retry_attempts       = var.schedule_max_retry_attempts
     }
   }
 
